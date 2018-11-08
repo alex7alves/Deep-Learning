@@ -56,6 +56,11 @@ detectar_cancer.compile(otimizar,loss='binary_crossentropy',metrics=['binary_acc
 detectar_cancer.fit(entrada_treinar,esperado_treinar,batch_size=10,epochs=100)
 
 
+# Pegando os pesos
+pesosCamadaEntrada = detectar_cancer.layers[0].get_weights()
+pesosCamadaOculta  = detectar_cancer.layers[1].get_weights()
+pesosCamadaSaida   = detectar_cancer.layers[2].get_weights()
+
 # Realizando teste de validação
 # retorna probabilidade de acerto
 validar = detectar_cancer.predict(entrada_teste)
