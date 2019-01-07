@@ -21,8 +21,9 @@ from keras.layers import Conv2D, MaxPooling2D
 
 # Mostrando uma amostra em escala de cinza
 #com seu respectivo valor no title
-pl.imshow(entrada[2], cmap='gray')
-pl.title('Valor '+str(desejado[2]))
+#pl.imshow(entrada[2], cmap='gray')
+#pl.title('Valor '+str(desejado[2]))
+
 
 # Mudando o formato 
 #reshape(numero de registro,altura,largura,canal -> 1= tom de cinza )
@@ -39,4 +40,22 @@ x_teste=x_teste/255
 # Transformando o desejado em categoria (1 -> 1 0 0 0 0 0 0 0 0 0)
 d_treinamento = np_utils.to_categorical(desejado,10) 
 d_teste = np_utils.to_categorical(desejado_teste,10)
+
+digitos = Sequential()
+# Camada de convolução (eatapa 1) com 32 detectores de caracteristicas 
+# conv2D(numero de filtros, tamanho da janela)
+digitos.add(Conv2D(32,(3,3), input_shape=(28,28,1), activation='relu'))
+# Pooling (etapa 2)
+digitos.add(MaxPooling2D(pool_size=(2,2)))
+
+# Flattening (etapa 3)
+digitos.add(Flatten())
+# Etapa 4
+# Camada escondida
+digitos.add(Dense(units=128,activation='relu'))
+# Camada de saida
+digitos.add(Dense(units=10,activation='softmax'))
+digitos.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+digitos.fit(x_treinamento,d_treinamento,batch_size=128,epochs=5,
+            validation_data=(x_teste,d_teste))
 
