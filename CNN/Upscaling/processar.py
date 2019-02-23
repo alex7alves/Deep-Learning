@@ -30,7 +30,6 @@ def Borrar(img):
 
 def Noise(imga):
     img = cv2.imread('Imagens/ScreenShot027.jpg')
-    print(img)
     linha,coluna,c=img.shape
     #gaussian = np.int_(np.random.random((linha, coluna, 3))*10)
     gaussian = np.round(np.random.rand(linha, coluna, 3) * 255).astype(np.uint8)
@@ -42,10 +41,14 @@ def Reduzir(img):
     #h, w,x = img.shape
     #center = (w // 2, h // 2)
     #re_img = cv2.resize(img,center ,fx=0.5,fy=0.5,interpolation = cv2.INTER_LINEAR)
-    re_img = cv2.resize(img,(640,640))
-    cv2.imshow("Show by CV2",re_img)
-    cv2.waitKey(0)
+    re_img = cv2.resize(img,(640,640),interpolation = cv2.INTER_LINEAR)
+    #cv2.imshow("Show by CV2",re_img)
+    #cv2.waitKey(0)
     return re_img
+
+
+def Salvar_resize(nome,img):
+    cv2.imwrite("Resize/"+nome,img)
 
 imagens=Retornar_imagens('Imagens/')
 #print(imagens)
@@ -54,5 +57,6 @@ array_set=Desordenar(imagens)
 
 image=Abrir_imagem('Imagens/ScreenShot027.jpg')
 #Borrar(image)
-Reduzir(image)
+re=Reduzir(image)
+Salvar_resize("ScreenShot027.jpg",re)
 #Noise(image)
