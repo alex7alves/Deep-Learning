@@ -19,44 +19,28 @@ def Desordenar(lista):
     randon_array=set(lista)
     return randon_array
 
-def Abrir_imagem(img):
-    imagem = cv2.imread(img)
+def Abrir_imagem(local,img):
+    imagem = cv2.imread(local+"/"+img)
     return imagem
 
 def Borrar(img):
-    #imagem=Abrir_imagem(img)
     blur = cv2.blur(img,(7,7))
     return blur
 
 def Noise(imga):
-    img = cv2.imread('Imagens/ScreenShot027.jpg')
     linha,coluna,c=img.shape
-    #gaussian = np.int_(np.random.random((linha, coluna, 3))*10)
     gaussian = np.round(np.random.rand(linha, coluna, 3) * 255).astype(np.uint8)
     gaussian_noise = cv2.addWeighted(img,0.5,gaussian, 0.5, 0)
     cv2.imshow("Original / Noise", np.hstack([img, gaussian_noise]))
     cv2.waitKey(0)
 
-def Reduzir(img):
-    #h, w,x = img.shape
-    #center = (w // 2, h // 2)
-    #re_img = cv2.resize(img,center ,fx=0.5,fy=0.5,interpolation = cv2.INTER_LINEAR)
-    re_img = cv2.resize(img,(640,640),interpolation = cv2.INTER_LINEAR)
-    #cv2.imshow("Show by CV2",re_img)
-    #cv2.waitKey(0)
+def Resize(img):
+    h, w,x = img.shape
+    center = (w // 2, h // 2)
+    re_img = cv2.resize(img,center ,fx=0.5,fy=0.5,interpolation = cv2.INTER_LINEAR)
+    #re_img = cv2.resize(img,(w,h),interpolation = cv2.INTER_LINEAR)
     return re_img
 
 
-def Salvar_resize(nome,img):
-    cv2.imwrite("Resize/"+nome,img)
-
-imagens=Retornar_imagens('Imagens/')
-#print(imagens)
-array_set=Desordenar(imagens)
-#print(array_set)
-
-image=Abrir_imagem('Imagens/ScreenShot027.jpg')
-#Borrar(image)
-re=Reduzir(image)
-Salvar_resize("ScreenShot027.jpg",re)
-#Noise(image)
+def Salvar_resize(local,nome,img):
+    cv2.imwrite(local+"/"+nome,img)
