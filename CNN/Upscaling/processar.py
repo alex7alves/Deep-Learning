@@ -27,12 +27,13 @@ def Borrar(img):
     blur = cv2.blur(img,(7,7))
     return blur
 
-def Noise(imga):
+def Noise(img):
     linha,coluna,c=img.shape
-    gaussian = np.round(np.random.rand(linha, coluna, 3) * 255).astype(np.uint8)
-    gaussian_noise = cv2.addWeighted(img,0.5,gaussian, 0.5, 0)
-    cv2.imshow("Original / Noise", np.hstack([img, gaussian_noise]))
-    cv2.waitKey(0)
+    gaussiano = np.round(np.random.rand(linha, coluna, 3) * 255).astype(np.uint8)
+    ruido_gaussiano = cv2.addWeighted(img,0.5,gaussiano, 0.5, 0)
+    #cv2.imshow("Original / Noise", np.hstack([img, gaussian_noise]))
+    #cv2.waitKey(0)
+    return ruido_gaussiano
 
 def Resize(img):
     h, w,x = img.shape
