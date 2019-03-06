@@ -1,10 +1,12 @@
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
+Created on Mon Mar  4 09:08:47 2019
 
-Autor : Alex Alves
-
-Programa para treinar rede CNN para upscaling
+@author: alex
 """
+
+
 import pandas as pa
 
 # Importação para poder  dividir os dados entre treinamento da rede e testes de validação
@@ -14,9 +16,8 @@ import keras
 
 from sklearn.metrics import confusion_matrix, accuracy_score
 
-from keras.models import Sequential
-from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, Conv2DTranspose, UpSampling2D
-from keras.layers.normalization import BatchNormalization
+from keras.models import Model,Sequential
+from keras.layers import InputLayer, Input,Conv2DTranspose, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Reshape
 from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 from keras.preprocessing import image
@@ -45,7 +46,7 @@ def Normalizar(x):
 def Converter(x):
     w,h,c=x[0].shape
     x = np.array(x, dtype=np.uint8)
-    x = x.reshape(x.shape[0],3,w,h)
+    x = x.reshape(x.shape[0],w,h,3)
     return x
 
 
@@ -54,8 +55,7 @@ entrada_treinamento = Carregar_imagens("Banco/treinamento")
 desejado_treinamento = Carregar_imagens("Imagens/treinamento")
 entrada_teste = Carregar_imagens("Banco/teste")
 desejado_teste = Carregar_imagens("Imagens/teste")
-#print(desejado_treinamento[0].shape)
-#print(len(desejado_treinamento))
+
 
 entrada_treinamento=Converter(entrada_treinamento)
 desejado_treinamento=Converter(desejado_treinamento)
@@ -71,39 +71,43 @@ entrada_teste = Normalizar(entrada_teste)
 desejado_teste = Normalizar(desejado_teste)
 
 
-#out = Conv2DTranspose(filters=8,kernel_size=(3,3),strides=2,padding='same')(entrada_treinamento)
-#print(out)
 
-w,h,c=entrada_treinamento[0].shape
-#print(w,h,c)
-upscaling = Sequential()
-# Opencv abre imagem de forma invertida (w,h,c)
-#upscaling.add(Conv2D(16, (3,3), input_shape = (w, h, c), activation = 'relu'))
-#upscaling.add(Conv2DTranspose(filters=8,kernel_size=(3,3),strides=2,padding='same',activation='relu'))
-upscaling.add(Conv2DTranspose(filters=8,kernel_size=(3,3),strides=2,padding='same',activation='relu'))
-#upscaling.add(UpSampling2D(size =( 2,2)))
-upscaling.add(BatchNormalization())
-upscaling.add(Flatten())
+autoencoder = Sequential()
+# Encoder
+autoencoder.add(Conv2D(filters = 16, kernel_size = (3,3), activation = 'relu', input_shape=(120,120,3),strides = (2,2),padding='same'))
+autoencoder.add(Conv2D(filters = 8, kernel_size = (3,3), activation = 'relu',strides = (2,2),padding='same'))
+autoencoder.add(Flatten())
+autoencoder.summary()
+autoencoder.add(Reshape((30,30,8)))
+autoencoder.add(Conv2DTranspose(filters=8,kernel_size=(3,3),strides=(2,2),activation='relu',padding='same'))
+autoencoder.add(Conv2DTranspose(filters=16,kernel_size=(3,3),strides=(2,2),activation='relu',padding='same'))
+autoencoder.summary()
+autoencoder.add(Conv2DTranspose(filters=3,kernel_size=(3,3),strides=(2,2),activation='sigmoid',padding='same'))
 
-upscaling.add(Dense(units = 128, activation = 'relu'))
-#upscaling.add(Dropout(0.2))
-upscaling.add(Dense(units = 128, activation = 'relu'))
-#upscaling.add(Dropout(0.2))
-upscaling.add(Dense(units = 1, activation = 'sigmoid'))
-
-#upscaling.compile(optimizer = 'adam', loss = 'binary_crossentropy',
-  #                    metrics = ['accuracy'])
-
-upscaling.compile(optimizer = 'adam', loss = 'mean_squared_error',
-                      metrics = ['accuracy'])
+autoencoder.summary()
 
 
+autoencoder.compile(optimizer = 'adam', loss = 'mean_squared_error',
+                   metrics = ['accuracy'])
 
-upscaling.fit(entrada_treinamento,desejado_treinamento,batch_size=128,epochs=5,
-              validation_data=(entrada_teste,desejado_teste))
+autoencoder.fit(entrada_treinamento,desejado_treinamento,
+                epochs = 500,
+                validation_data = (entrada_teste,desejado_teste))
 
 
+'''
 
+autoencoder = Sequential()
+# Encoder
+autoencoder.add(Conv2D(filters = 16, kernel_size = (5,5), activation = 'relu', input_shape=(84,127,3),strides = (2,2),padding='same'))
+autoencoder.add(Conv2D(filters = 8, kernel_size = (5,5), activation = 'relu',strides = (2,2),padding='same'))
+autoencoder.add(Flatten())
+autoencoder.summary()
+autoencoder.add(Reshape((21,32,8)))
+autoencoder.add(Conv2DTranspose(filters=8,kernel_size=(3,3),strides=(2,2),activation='relu',padding='same'))
+autoencoder.add(Conv2DTranspose(filters=16,kernel_size=(3,3),strides=(2,2),activation='relu',padding='same'))
+autoencoder.summary()
+autoencoder.add(Conv2DTranspose(filters=3,kernel_size=(3,3),strides=(2,2),activation='sigmoid',padding='same'))
 
-#gerador_treinamento = ImageDataGenerator(rescale = 1./255)
-#base_treinamento = gerador_treinamento.flow_from_directory('Banco/')
+autoencoder.summary()
+'''
